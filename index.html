@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Fiscal QR</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-bg: #ffffff;
+            --input-border: #ccc;
+            --highlight-bg: #e9ecef;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --input-bg: #2d2d2d;
+            --input-border: #444;
+            --highlight-bg: #333;
+        }
+
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        select, input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 4px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-size: 16px; }
+        
+        .btn-main { width: 100%; padding: 15px; margin-top: 25px; background-color: #0056b3; color: white; border: none; border-radius: 4px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .btn-main:disabled { background-color: #ccc; }
+        
+        .btn-toggle { padding: 8px 12px; background-color: var(--input-border); color: var(--text-color); border: none; border-radius: 20px; cursor: pointer; font-size: 14px; }
+
+        #reader { width: 100%; margin-top: 15px; background-color: var(--highlight-bg); }
+        .hidden { display: none; }
+        .data-display { background: var(--highlight-bg); padding: 15px; margin-top: 10px; border-radius: 4px; font-family: monospace; border-left: 4px solid #0056b3; }
+        .partial-alert { color: #d9534f; font-size: 0.9em; margin-top: 5px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Inventario QR</h2>
+        <button class="btn-toggle" onclick="toggleTheme()">Cambiar Tema 🌓</button>
+    </div>
+
+    <div class="card">
+        <label for="areaSelect">1. Selecciona el Área (Obligatorio)</label>
+        <select id="areaSelect">
+            <option value="">-- Seleccionar --</option>
+            <option value="IL">Logística (IL)</option>
+            <option value="WE">Welding (WE)</option>
+            <option value="ST">Estampado (ST PARTS)</option>
+        </select>
+
+        <label>2. Escanea el Código QR</label>
+        <div id="reader"></div>
+    </div>
+
+    <div id="scanResult" class="card hidden">
+        <h3>Datos del Material:</h3>
+        <input type="hidden" id="serialVal"><input type="hidden" id="partNumVal">
+        <input type="hidden" id="sebangoVal"><input type="hidden" id="qpcVal">
+        
+        <div class="data-display" id="qrData"></div>
+        
+        <label for="cajasInput">3. Cantidad de Cajas (Completas)</label>
+        <input type="number" id="cajasInput" min="0" placeholder="Ej. 5" inputmode="numeric">
+
+        <div id="piezasContainer" class="hidden">
+            <label for="piezasInput" style="color: #d9534f;">4. Cantidad de Piezas Sueltas (Parcial)</label>
+            <span class="partial-alert">⚠️ Habilitado porque el QPC es menor a 30.</span>
+            <input type="number" id="piezasInput" min="0" placeholder="Ej. 12" inputmode="numeric">
+        </div>
+
+        <button id="btnCapturar" class="btn-main" onclick="enviarDatos()">Guardar Conteo</button>
+    </div>
+
+    <script>
+        // TU URL CORRECTA
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc8qZS_iq-oCGbPgINXaR-59vdCpguPXe-AKUn5DgnTA-Ks8f3YULDMme0H_zzGBNi0g/exec'; 
+        
+        // Configuración del escáner
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250}, rememberLastUsedCamera: true }, false);
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Reiniciamos la interfaz para un nuevo escaneo limpio
+            document.getElementById('scanResult').classList.add('hidden');
+            document.getElementById('piezasContainer').classList.add('hidden');
+            document.getElementById('cajasInput').value = '';
+            document.getElementById('piezasInput').value = '';
+
+            // Interpretamos el QR (separado por comas)
+            let datosQR = decodedText.split(','); 
+            if(datosQR.length >= 3) {
+                // Llenamos los campos ocultos
+                document.getElementById('serialVal').value = datosQR[0].trim();
+                var partNum = datosQR[1].trim();
+                document.getElementById('partNumVal').value = partNum;
+                document.getElementById('sebangoVal').value = datosQR[2].trim();
+                
+                // Mostramos los datos en pantalla
+                document.getElementById('qrData').innerHTML = `
+                    <strong>Sebango:</strong> ${datosQR[2].trim()}<br>
+                    <strong>Nº Parte:</strong> ${partNum}<br>
+                    <strong>Kanban:</strong> ${datosQR[0].trim()}
+                `;
+                
+                document.getElementById('scanResult').classList.remove('hidden');
+                
+                // Pausamos el escáner mientras se capturan datos
+                html5QrcodeScanner.pause();
+                
+                // Buscamos el QPC y verificamos condiciones
+                fetchQPC(partNum);
+            } else {
+                alert("QR no válido. Formato requerido: Serial,NumeroParte,Sebango");
+            }
+        }
+
+        html5QrcodeScanner.render(onScanSuccess);
+
+        async function fetchQPC(partNumber) {
+            let qpcDisplay = document.getElementById('qrData');
+            qpcDisplay.innerHTML += "<br><em>Buscando QPC...</em>";
+
+            try {
+                let response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?partNumber=${partNumber}`);
+                let data = await response.json();
+                let qpc = data.qpc || 1;
+                document.getElementById('qpcVal').value = qpc;
+                qpcDisplay.innerHTML = qpcDisplay.innerHTML.replace("Buscando QPC...", `<strong>QPC:</strong> ${qpc}`);
+                
+                // LÓGICA DE PARCIALES: Si QPC < 30, mostramos el campo de piezas sueltas
+                if (qpc > 0 && qpc < 30) {
+                    document.getElementById('piezasContainer').classList.remove('hidden');
+                    alert("Atención: QPC menor a 30. Se ha habilitado el campo de piezas sueltas.");
+                }
+            } catch (error) {
+                console.error("Error QPC:", error);
+                document.getElementById('qpcVal').value = 1; // Valor seguro por defecto
+                qpcDisplay.innerHTML += "<br>(Error obteniendo QPC, se usará 1)";
+            }
+        }
+
+        async function enviarDatos() {
+            let area = document.getElementById('areaSelect').value;
+            let cajas = document.getElementById('cajasInput').value;
+            let btn = document.getElementById('btnCapturar');
+
+            if(area === "") { alert("Error: Debes seleccionar un ÁREA antes de guardar."); return; }
+            if(cajas === "") { alert("Error: Debes ingresar la cantidad de CAJAS."); return; }
+
+            btn.disabled = true;
+            btn.innerText = "Guardando en Google Sheets...";
+
+            let payload = {
+                area: area,
+                serial: document.getElementById('serialVal').value,
+                numeroParte: document.getElementById('partNumVal').value,
+                sebango: document.getElementById('sebangoVal').value,
+                cajas: cajas,
+                piezas: document.getElementById('piezasInput').value || 0,
+                qpc: document.getElementById('qpcVal').value
+            };
+
+            try {
+                // Usamos 'no-cors' para evitar errores de CORS, aunque la respuesta será opaca
+                await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Asumimos éxito si no rebotó la petición
+                alert("✅ Datos enviados correctamente.");
+                
+                // Limpiamos y reanudamos escáner
+                document.getElementById('scanResult').classList.add('hidden');
+                document.getElementById('piezasContainer').classList.add('hidden');
+                document.getElementById('cajasInput').value = '';
+                document.getElementById('piezasInput').value = '';
+                html5QrcodeScanner.resume();
+
+            } catch(error) {
+                alert("❌ Error al intentar guardar. Verifica tu conexión.");
+                console.error(error);
+            }
+            btn.disabled = false;
+            btn.innerText = "Guardar Conteo";
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
