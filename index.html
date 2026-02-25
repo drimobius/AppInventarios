@@ -3,142 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario KTMEX - PC</title>
+    <title>Inventario QR Móvil - KTMEX</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #1c1e21; --input-border: #ced4da; --primary-color: #0d6efd; --danger-color: #dc3545; --highlight: #e7f3ff;}
-        .dark-mode { --bg-color: #121212; --card-bg: #1e1e1e; --text-color: #e4e6eb; --input-border: #444; --primary-color: #3b82f6; --highlight: #2b3a4a;}
-        body { font-family: Segoe UI, Roboto, sans-serif; padding: 15px; background-color: var(--bg-color); color: var(--text-color); max-width: 500px; margin: auto; transition: 0.3s; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 20px; }
-        select, input { width: 100%; padding: 15px; margin-top: 10px; border-radius: 10px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-color); font-size: 1.1rem; box-sizing: border-box; }
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 10px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 15px; }
-        .btn-save { background: var(--primary-color); color: white; }
-        .btn-theme { background: none; border: 1px solid var(--input-border); color: var(--text-color); width: auto; padding: 5px 15px; border-radius: 20px; }
-        .data-box { background: var(--highlight); padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 5px solid var(--primary-color); }
+        :root { --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #1c1e21; --input-bg: #ffffff; --input-border: #ced4da; --highlight-bg: #e7f3ff; --primary-color: #0d6efd; --danger-color: #dc3545; }
+        .dark-mode { --bg-color: #121212; --card-bg: #1e1e1e; --text-color: #e4e6eb; --input-bg: #2d2d2d; --input-border: #444; --highlight-bg: #2b3a4a; --primary-color: #3b82f6; }
+        body { font-family: Arial, sans-serif; padding: 15px; margin: auto; max-width: 600px; background-color: var(--bg-color); color: var(--text-color); font-size: 18px; transition: background-color 0.3s;}
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--input-border); }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 1.2rem; }
+        select, input { width: 100%; padding: 18px; margin-top: 8px; border-radius: 8px; border: 2px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-size: 1.3rem; font-weight: bold; }
+        .btn-main { width: 100%; padding: 20px; margin-top: 25px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.4rem; font-weight: bold; cursor: pointer; }
+        .btn-main:disabled { background-color: #6c757d; }
+        .btn-secondary { background-color: var(--danger-color); margin-top: 15px; }
+        .btn-toggle { padding: 10px 15px; background-color: var(--input-border); color: var(--text-color); border: none; border-radius: 20px; font-size: 1.2rem; }
+        #reader { width: 100%; margin-top: 15px; border-radius: 8px; overflow: hidden; }
         .hidden { display: none !important; }
-        #reader { width: 100%; border-radius: 10px; overflow: hidden; }
+        .data-display { background: var(--highlight-bg); padding: 15px; margin-top: 10px; border-radius: 8px; font-size: 1.2rem; border-left: 6px solid var(--primary-color); }
+        .alert-box { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border-left: 6px solid #ffeeba; margin-top: 15px; font-weight: bold; font-size: 1.1rem;}
+        .dark-mode .alert-box { background-color: #4d4013; color: #ffecb5; border-color: #856404; }
     </style>
 </head>
 <body>
 
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>📊 Registro de Inventario</h3>
-        <button class="btn-theme" onclick="document.body.classList.toggle('dark-mode')">🌓</button>
+    <div class="header">
+        <h2>📦 Inventario KTMEX</h2>
+        <button class="btn-toggle" onclick="toggleTheme()">🌓 Modo</button>
     </div>
 
-    <div id="setup" class="card">
-        <label><b>Paso 1: Área de Trabajo</b></label>
-        <select id="area">
-            <option value="">-- Seleccionar --</option>
-            <option value="PC">PC (Control de Producción)</option>
-            <option value="IL">Logística (IL)</option>
+    <div id="sectionScanner" class="card">
+        <label for="areaSelect">1. Selecciona tu Área</label>
+        <select id="areaSelect">
+            <option value="">-- Seleccionar Área --</option>
+            <option value="PC">Producción Control (PC)</option>
             <option value="WE">Welding (WE)</option>
+            <option value="IL">Logística (IL)</option>
             <option value="SP">SP</option>
             <option value="ST Parts">Estampado (ST Parts)</option>
             <option value="QC">QC</option>
             <option value="SP PC">SP PC</option>
         </select>
-        <br><br>
-        <label><b>Paso 2: Escanear Kanban</b></label>
+
+        <label style="margin-top: 25px;">2. Escanear Kanban</label>
         <div id="reader"></div>
     </div>
 
-    <div id="result" class="card hidden">
-        <div class="data-box" id="info"></div>
+    <div id="scanResult" class="card hidden">
+        <h3 style="margin-top: 0; color: var(--primary-color); font-size: 1.4rem;">Datos Detectados</h3>
+        <input type="hidden" id="sebangoVal"><input type="hidden" id="qpcVal">
         
-        <div id="contCajas" class="hidden">
-            <label id="labelCajas">📦 Cajas Completas</label>
-            <input type="number" id="valCajas" inputmode="numeric" placeholder="0">
+        <div class="data-display" id="qrData"></div>
+        
+        <div id="cajasContainer" class="hidden">
+            <label for="cajasInput" id="labelCajas">📦 Cajas Completas</label>
+            <input type="number" id="cajasInput" min="0" placeholder="0" inputmode="numeric">
         </div>
 
-        <div id="contPiezas" class="hidden">
-            <label>🔩 Piezas Sueltas</label>
-            <input type="number" id="valPiezas" inputmode="numeric" placeholder="0">
+        <div id="piezasContainer" class="hidden">
+            <div class="alert-box">⚠️ QPC menor a 30. Captura de piezas sueltas obligatoria.</div>
+            <label for="piezasInput">🔩 Piezas Sueltas</label>
+            <input type="number" id="piezasInput" min="0" placeholder="0" inputmode="numeric">
         </div>
 
-        <button class="btn btn-save" id="btnSend" onclick="enviar()">💾 GUARDAR EN J (PC)</button>
-        <button class="btn" style="background:#6c757d; color:white;" onclick="reset()">🔄 Escanear otro</button>
+        <button id="btnCapturar" class="btn-main" onclick="enviarDatos()">💾 Guardar en Base</button>
+        <button class="btn-main btn-secondary" onclick="resetScanner()">❌ Re-escanear</button>
     </div>
 
     <script>
-        // BASE DE DATOS JSON (Incluida)
-        const db = {"K001": 48, "H201": 96, "K099": 60, "K101": 30, "XN08": 3000, "XB10": 450}; // ... El resto de tus 1295 registros iría aquí igual que antes
+        // WEB APP URL DE GOOGLE APPS SCRIPT
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTi1B_Xd7120zeCkpEdVcfGj4YbhGbWZti2Z5nmqQlIzJheT68pSQcHEGtPnglXHxDgQ/exec'; 
         
-        const scriptURL = 'TU_NUEVO_URL_DE_APPS_SCRIPT_EXEC';
-        let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        // BASE DE DATOS LOCAL GENERADA DESDE TU CSV (JSON INCORPORADO)
+        const kanbanDB = {"K001": 48, "H201": 96, "K701": 48, "K401": 48, "T001": 96, "K002": 8, "K201": 0, "H202": 10, "K402": 24, "T002": 10, "K003": 48, "H203": 96, "K703": 48, "K863": 48, "K403": 96, "T003": 96, "K004": 48, "H204": 96, "K704": 48, "K864": 48, "K404": 96, "T004": 96, "K099": 60, "K100": 60, "K101": 30, "K202": 0, "K102": 30, "K103": 50, "K105": 60, "K282": 0, "K106": 60, "K104": 50, "K107": 120, "K108": 120, "K005": 16, "H205": 24, "K705": 16, "K405": 64, "T005": 24, "A005": 24, "K006": 24, "K007": 24, "H010": 30, "H206": 30, "H207": 24, "A245": 24, "B245": 30, "K706": 24, "K707": 24, "K856": 30, "B005": 30, "T006": 30, "A145": 60, "K708": 0, "A288": 0, "K204": 0, "K408": 60, "A146": 72, "K409": 72, "K410": 72, "A289": 0, "K205": 0, "K206": 0, "K406": 200, "K407": 200, "A613": 55, "A614": 65, "K008": 16, "K207": 0, "H208": 16, "K411": 16, "T008": 24, "K779": 30, "K218": 0, "K479": 24, "T779": 30, "K784": 30, "K484": 24, "T784": 30, "K713": 60, "A321": 300, "H713": 60, "K726": 60, "H726": 60, "A017": 12, "A156": 0, "H017": 26, "A247": 26, "A147": 26, "B017": 26, "A018": 12, "H018": 26, "A248": 26, "A148": 26, "B018": 26, "K109": 2000, "A350": 50, "A013": 4, "B013": 38, "A142": 180, "A098": 0, "K110": 60, "K215": 0, "K476": 60, "A141": 180, "A290": 0, "K735": 260, "T735": 260, "A002": 12, "A003": 12, "K020": 12, "A004": 12, "K021": 12, "A234": 12, "K777": 24, "H777": 5, "H787": 5, "A220": 0, "K783": 0, "H783": 5, "H793": 5, "A215": 12, "K776": 48, "H004": 11, "H005": 30, "H104": 11, "H105": 11, "A236": 12, "A238": 12, "A221": 12, "K768": 48, "H221": 11, "H121": 11, "A216": 12, "K770": 12, "H002": 5, "H003": 12, "H102": 5, "H103": 5, "A237": 12, "A239": 12, "T770": 10, "A222": 12, "K762": 48, "H100": 5, "H101": 5, "T762": 10, "K782": 48, "H782": 12, "H882": 12, "A323": 75, "K477": 24, "K216": 0, "T477": 70, "A332": 75, "K483": 120, "K221": 24, "T483": 70, "A322": 120, "A331": 120, "A111": 12, "A161": 0, "A118": 12, "K774": 0, "H774": 12, "H874": 12, "K741": 80, "K764": 80, "K716": 60, "K728": 60, "K702": 120, "A324": 300, "T702": 140, "A212": 15, "K780": 48, "A165": 0, "K219": 0, "A112": 12, "K480": 96, "B212": 15, "T780": 100, "A333": 100, "K785": 24, "K224": 0, "K485": 96, "T785": 100, "K778": 48, "K217": 0, "K478": 96, "T778": 96, "K482": 48, "T482": 96, "K721": 70, "H721": 70, "T721": 70, "K738": 70, "H738": 70, "T738": 70, "A213": 15, "A099": 0, "A113": 48, "B213": 15, "K724": 62, "T724": 62, "K837": 500, "K537": 500, "T837": 500, "A326": 25, "A217": 12, "A214": 0, "A117": 96, "K720": 150, "T720": 150, "K736": 150, "T736": 150, "A329": 140, "A229": 48, "A330": 400, "K722": 40, "T722": 40, "K739": 40, "T739": 40, "A327": 300, "A328": 70, "K302": 35, "K303": 35, "A325": 70, "A334": 70, "K111": 120, "K112": 120, "K113": 20, "K226": 0, "K489": 40, "K304": 0, "A077": 80, "K114": 60, "B077": 80, "T114": 90, "A201": 12, "K426": 20, "A100": 0, "K209": 0, "A101": 12, "A301": 150, "K729": 12, "K210": 0, "K429": 12, "K781": 12, "A114": 100, "A153": 0, "K220": 0, "H781": 14, "H791": 14, "K481": 240, "T781": 14, "B114": 100, "K786": 12, "A119": 100, "K225": 0, "H786": 14, "H796": 0, "K486": 12, "T786": 14, "B119": 100, "K115": 15, "K487": 45, "T115": 30, "A064": 120, "B064": 120, "A157": 0, "A420": 120, "K116": 60, "K488": 80, "T116": 60, "K117": 300, "T117": 300, "K009": 8, "H209": 12, "H309": 8, "T009": 12, "K010": 8, "H210": 6, "H310": 8, "T010": 8, "K011": 16, "H211": 16, "H311": 16, "T011": 16, "K420": 360, "K421": 200, "K422": 180, "A102": 48, "K730": 48, "K430": 60, "A302": 200, "K731": 1000, "K431": 72, "A303": 40, "K727": 120, "K427": 240, "A304": 150, "K732": 60, "K432": 60, "A305": 500, "K733": 36, "K433": 48, "A208": 24, "A115": 0, "A108": 24, "A211": 10, "B211": 10, "A318": 80, "A306": 40, "A204": 24, "A104": 24, "A001": 12, "K012": 2, "H001": 4, "H212": 9, "H021": 4, "H312": 0, "B001": 12, "T012": 9, "A307": 130, "K710": 267, "A308": 480, "K711": 360, "K734": 24, "K434": 48, "K737": 36, "K437": 80, "K300": 300, "K301": 500, "A205": 24, "K435": 60, "A116": 0, "A105": 24, "K438": 72, "A206": 24, "K740": 36, "A120": 0, "A106": 24, "K440": 36, "K441": 30, "K445": 96, "K742": 175, "K442": 350, "K743": 120, "K443": 300, "K712": 72, "K412": 90, "A320": 300, "K715": 36, "K415": 60, "A309": 300, "K744": 36, "K444": 60, "A207": 18, "K413": 20, "K208": 0, "A107": 24, "A218": 10, "B218": 10, "A209": 24, "K416": 48, "A109": 24, "A219": 10, "B219": 10, "K709": 96, "K747": 24, "K447": 72, "A310": 60, "K748": 36, "K448": 72, "A311": 40, "K449": 96, "K450": 96, "A210": 60, "A110": 60, "A312": 40, "K436": 180, "A313": 300, "K439": 80, "K717": 140, "K417": 140, "A314": 250, "A315": 60, "A203": 36, "K751": 100, "A103": 36, "K451": 240, "A316": 300, "K752": 120, "K452": 280, "A319": 50, "K718": 48, "K418": 48, "K753": 60, "K453": 110, "K754": 60, "K454": 140, "K428": 600, "K755": 120, "K455": 360, "K756": 60, "K456": 60, "K457": 300, "K758": 120, "K458": 280, "K759": 120, "K459": 180, "K746": 72, "K446": 240, "K760": 300, "K460": 600, "K761": 48, "K461": 48, "K462": 80, "K463": 48, "XB10": 450, "K714": 48, "K574": 48, "K414": 48, "K719": 60, "K419": 60, "K723": 60, "K423": 60, "K424": 1000, "A317": 200, "K464": 400, "K465": 120, "K766": 40, "K466": 40, "K725": 60, "K425": 180, "K022": 12, "H022": 6, "H122": 6, "T022": 6, "K023": 12, "H023": 6, "H123": 6, "T023": 6, "K745": 150, "K765": 150, "K118": 200, "K119": 200, "A067": 20, "K749": 70, "A096": 0, "A069": 20, "K767": 70, "K120": 300, "K121": 300, "K122": 300, "A068": 48, "K750": 250, "A070": 48, "K123": 200, "K124": 200, "A072": 60, "A154": 0, "K125": 30, "K227": 0, "K490": 90, "K126": 30, "K491": 90, "K127": 300, "H127": 300, "K128": 300, "A071": 20, "K129": 12, "A160": 0, "K228": 0, "K130": 30, "K229": 0, "K131": 30, "A052": 15, "H052": 15, "H152": 15, "A053": 15, "H053": 15, "H153": 15, "A008": 6, "H008": 20, "H108": 6, "B008": 6, "A009": 6, "H009": 20, "H109": 6, "B009": 6, "A061": 12, "K789": 0, "K788": 0, "K132": 160, "K133": 200, "K134": 200, "K135": 140, "K136": 140, "K137": 36, "K231": 0, "K138": 36, "K139": 120, "A402": 60, "A274": 0, "B402": 100, "A413": 15, "A166": 0, "A414": 15, "A202": 0, "K025": 90, "K024": 24, "K262": 0, "H025": 12, "H125": 36, "K572": 60, "K571": 24, "T025": 130, "K026": 24, "K573": 24, "K140": 24, "A083": 60, "K141": 60, "A155": 0, "K592": 60, "A085": 60, "K142": 60, "K593": 60, "K143": 80, "K144": 80, "K145": 24, "A233": 6, "A050": 12, "A051": 12, "H051": 18, "H151": 2, "B051": 36, "A235": 6, "K146": 30, "K263": 0, "K147": 30, "K148": 40, "K149": 40, "A415": 24, "K150": 40, "A417": 24, "K151": 40, "K152": 160, "K153": 100, "K154": 100, "A133": 48, "A094": 0, "A135": 48, "A167": 0, "A344": 90, "A345": 100, "K155": 24, "K261": 0, "A347": 100, "K156": 24, "A607": 200, "A406": 180, "A275": 0, "A065": 15, "A278": 0, "A421": 15, "B065": 15, "K157": 50, "K576": 50, "A134": 24, "K158": 24, "A162": 0, "K260": 0, "H258": 24, "A136": 24, "K159": 24, "K792": 48, "K492": 48, "K793": 48, "K493": 48, "K160": 24, "H160": 24, "K161": 24, "H161": 24, "A056": 12, "A057": 12, "A516": 12, "K162": 7, "A175": 0, "K258": 0, "A416": 12, "K577": 7, "A518": 12, "K163": 7, "A285": 0, "K259": 0, "A418": 12, "K578": 7, "K164": 20, "K250": 0, "K579": 40, "T164": 40, "A078": 20, "A158": 0, "B078": 20, "K027": 36, "K248": 0, "H027": 36, "K580": 36, "K028": 36, "K249": 0, "H028": 36, "H088": 36, "K581": 36, "K029": 36, "H029": 36, "K582": 36, "K165": 24, "H165": 24, "H175": 0, "K166": 24, "K171": 24, "K172": 24, "A062": 6, "B062": 6, "A082": 60, "A084": 60, "K167": 180, "K013": 16, "K211": 0, "H213": 16, "K467": 24, "T013": 24, "K168": 16, "K245": 0, "K583": 24, "T168": 16, "K169": 16, "K246": 0, "K584": 24, "T169": 16, "K170": 180, "K585": 48, "K234": 0, "K586": 48, "K030": 20, "H130": 20, "K587": 20, "K031": 160, "H131": 150, "H231": 150, "K588": 160, "T031": 160, "A256": 6, "A174": 0, "H256": 8, "H156": 2, "A404": 8, "A257": 18, "A121": 0, "A405": 24, "K173": 36, "K232": 0, "K589": 36, "K174": 36, "K590": 36, "A608": 100, "K032": 48, "A407": 12, "A276": 0, "K230": 0, "H032": 48, "T032": 48, "A602": 100, "K033": 48, "A408": 12, "A277": 0, "H033": 40, "T033": 48, "K175": 40, "K176": 40, "A610": 60, "A509": 24, "A168": 0, "A409": 24, "A510": 24, "A169": 0, "A410": 24, "A611": 40, "A511": 24, "A170": 0, "A411": 24, "A604": 40, "A512": 24, "A171": 0, "A412": 24, "A079": 12, "A279": 0, "B079": 12, "K034": 36, "H034": 36, "H064": 36, "K035": 850, "H035": 850, "K036": 90, "K037": 36, "K243": 0, "K244": 0, "H036": 12, "H037": 36, "T036": 280, "K038": 60, "K039": 36, "K222": 0, "K223": 0, "H038": 60, "H039": 36, "H138": 60, "K591": 60, "T038": 60, "K040": 1000, "T040": 1150, "A006": 12, "H006": 12, "H106": 12, "B006": 12, "A007": 12, "H007": 12, "H107": 12, "B007": 12, "A227": 24, "K041": 12, "H041": 11, "H141": 12, "T041": 48, "A232": 0, "K042": 12, "H042": 11, "H142": 12, "T042": 48, "A226": 24, "K794": 24, "A272": 0, "K233": 0, "A126": 120, "K494": 240, "A249": 0, "A231": 24, "K797": 24, "A131": 120, "K497": 120, "A250": 0, "K757": 120, "K790": 120, "K763": 40, "XN08": 3000, "K791": 40, "A080": 12, "A097": 0, "A081": 12, "A124": 60, "A159": 0, "A129": 60, "K043": 160, "K277": 0, "H043": 30, "H143": 30, "T043": 30, "K044": 160, "H044": 30, "H144": 30, "T044": 30, "A223": 0, "A270": 0, "A123": 12, "A228": 0, "A128": 12, "A225": 12, "A271": 0, "A125": 120, "A230": 12, "A130": 120, "A338": 100, "A340": 500, "A339": 250, "K177": 450, "T177": 450, "A127": 24, "A122": 0, "A132": 24, "K178": 10, "K266": 0, "K562": 12, "K179": 10, "K563": 12, "A337": 150, "A341": 150, "K180": 450, "T180": 450, "K795": 200, "K495": 200, "K798": 200, "K498": 200, "A336": 50, "A343": 150, "K496": 450, "A335": 60, "A342": 60, "K181": 150, "K182": 120, "K183": 120, "K184": 120, "K564": 150, "T181": 150, "T182": 120, "T183": 120, "K185": 120, "K305": 200, "K186": 50, "K264": 0, "K187": 50, "K800": 120, "K500": 120, "A063": 72, "A172": 0, "A419": 72, "B063": 72, "K188": 160, "K565": 160, "T188": 160, "K189": 160, "K566": 160, "T189": 160, "K190": 120, "K567": 120, "T190": 120, "K191": 120, "K568": 120, "T191": 120, "K192": 60, "K569": 30, "K193": 60, "K570": 30, "K194": 120, "K195": 120, "K196": 100, "K197": 100, "A073": 72, "A273": 0, "A074": 72, "K810": 0, "K822": 0, "H810": 0, "H822": 0, "K808": 0, "K831": 0, "H808": 0, "H831": 0, "K045": 12, "K047": 12, "H065": 12, "H067": 12, "H075": 4, "H077": 12, "K046": 12, "K048": 12, "H066": 4, "H068": 12, "H076": 4, "H078": 12, "K812": 0, "K833": 0, "K825": 0, "K842": 0, "K807": 0, "H807": 0, "K817": 0, "H817": 0, "K520": 120, "K522": 360, "K235": 0, "K251": 0, "K512": 200, "K531": 360, "K802": 48, "K823": 48, "K238": 0, "K254": 0, "K502": 360, "K523": 360, "K815": 24, "K832": 24, "K515": 360, "K532": 360, "K499": 24, "K529": 160, "K236": 0, "K252": 0, "K854": 160, "K514": 24, "K525": 120, "K855": 160, "K508": 12, "K518": 12, "K507": 48, "K241": 0, "K517": 48, "K510": 48, "K533": 90, "K242": 0, "K253": 0, "K527": 48, "K542": 90, "K247": 0, "K803": 24, "K826": 24, "K239": 0, "K255": 0, "K503": 400, "K526": 400, "K816": 24, "K834": 24, "K516": 24, "K534": 24, "K049": 16, "K265": 0, "H049": 16, "T049": 40, "K050": 16, "H050": 16, "T050": 40, "K804": 12, "K828": 12, "K240": 0, "K256": 0, "K504": 12, "K528": 12, "K819": 12, "K835": 12, "K519": 12, "K535": 12, "K501": 48, "K513": 48, "K801": 0, "K809": 0, "K813": 0, "K839": 0, "K814": 0, "K829": 0, "K820": 0, "H820": 0, "T820": 14, "K818": 0, "H818": 0, "T818": 14, "K824": 0, "H824": 0, "T824": 18, "K827": 0, "H827": 0, "T827": 18, "K051": 850, "H251": 1000, "T051": 850, "A075": 20, "K509": 24, "A173": 0, "K237": 0, "A076": 20, "K524": 24, "A095": 0, "K805": 120, "K505": 120, "K821": 120, "K521": 120, "K307": 45, "K310": 70, "K309": 45, "K312": 70, "K806": 400, "K506": 400, "K830": 36, "K257": 0, "K530": 36, "K539": 36, "K511": 1200, "K306": 200, "K311": 130, "K308": 200, "K313": 130, "A010": 12, "A011": 12, "K052": 12, "K053": 12, "H013": 3, "H011": 20, "H252": 4, "H253": 0, "H111": 12, "H113": 12, "H352": 4, "H353": 0, "B011": 54, "K054": 12, "H054": 0, "H154": 4, "T054": 42, "A012": 12, "K055": 12, "H012": 20, "H055": 4, "H112": 12, "H155": 12, "B012": 150, "T055": 48, "K056": 400, "K275": 0, "H056": 12, "T056": 451, "A138": 120, "A281": 0, "A176": 210, "K554": 210, "A178": 0, "K267": 0, "A177": 210, "T554": 216, "K558": 240, "K269": 0, "A240": 24, "K836": 0, "A286": 0, "K270": 0, "A140": 300, "K536": 240, "A139": 24, "K555": 36, "A164": 0, "K268": 0, "K283": 0, "B139": 24, "T555": 56, "K556": 36, "K271": 0, "T556": 36, "K557": 12, "K272": 0, "A137": 96, "K198": 100, "A280": 0, "K559": 100, "K199": 100, "K560": 100, "A349": 190, "K318": 300, "K057": 12, "K058": 12, "K059": 12, "H057": 0, "H058": 0, "H059": 12, "H157": 0, "H158": 0, "H159": 12, "A054": 12, "A055": 12, "K838": 0, "K852": 0, "K811": 0, "T838": 40, "T811": 40, "A060": 12, "A058": 12, "A059": 12, "K845": 0, "K853": 0, "T845": 36, "K316": 100, "K317": 100, "K538": 360, "K213": 0, "A502": 24, "K840": 48, "K799": 48, "A282": 0, "K203": 0, "A403": 90, "K540": 120, "A605": 400, "A612": 200, "K849": 200, "K549": 200, "T849": 200, "A066": 12, "K545": 120, "A283": 0, "K273": 0, "A422": 192, "A603": 120, "K844": 30, "K274": 0, "K544": 30, "K843": 72, "K543": 72, "A606": 300, "K846": 36, "K546": 72, "K847": 36, "K547": 72, "K848": 120, "H848": 120, "K548": 120, "K850": 70, "K550": 70, "T850": 70, "A601": 220, "A609": 220, "K315": 1000, "K851": 500, "K552": 600, "K551": 500, "T851": 500, "T552": 600, "K541": 60, "K014": 16, "K015": 16, "K212": 0, "H014": 16, "H015": 16, "K769": 16, "K468": 120, "K469": 16, "T014": 120, "T015": 16, "K016": 16, "K017": 16, "H116": 16, "H117": 16, "K771": 16, "K470": 120, "K471": 16, "T016": 120, "T017": 16, "A021": 12, "A287": 0, "A014": 3, "B014": 140, "A015": 3, "B015": 140, "A019": 12, "K060": 24, "B019": 35, "A284": 0, "K276": 0, "T060": 28, "A020": 12, "K061": 24, "B020": 35, "T061": 28, "A149": 240, "K062": 36, "A291": 0, "K278": 0, "T062": 38, "A151": 240, "K063": 36, "T063": 38, "A088": 6, "A150": 240, "A292": 0, "A294": 0, "A089": 8, "A090": 6, "A152": 240, "A293": 0, "A091": 8, "K064": 12, "K280": 0, "T064": 12, "K065": 12, "T065": 12, "K066": 40, "T066": 40, "K067": 40, "T067": 40, "K068": 12, "K281": 0, "T068": 18, "K069": 12, "T069": 18, "K070": 80, "T070": 80, "K071": 80, "T071": 80, "K841": 60, "K314": 200, "K072": 6, "K279": 0, "H072": 6, "K561": 6, "K553": 0, "T553": 1000, "A016": 12, "B016": 36, "A163": 0, "H016": 24, "A244": 36, "A243": 36, "A144": 36, "A143": 36, "XN09": 1000, "XB11": 1000, "XB30": 0, "XB15": 1700, "XN16": 500, "XN05": 2000, "XN10": 1500, "XN12": 1000, "XN07": 1500, "XN11": 1000, "XN01": 2000, "XN21": 1500, "XN06": 1000, "XN24": 350, "XB05": 800, "XB18": 1000, "XN20": 0, "XB06": 3000, "XB29": 2000, "XB16": 1800, "XB23": 0, "XB12": 2000, "XB32": 1700, "XB01": 2000, "XB03": 1000, "XB04": 2000, "XB07": 1000, "XB26": 1000, "XB21": 1000, "XB22": 1000, "XB31": 1000, "XB17": 400, "XB25": 500, "XN04": 1000, "XN13": 900, "XN02": 1500, "XN17": 1000, "XN14": 500, "XN03": 500, "XN19": 1000, "XN22": 500, "XN23": 600, "XN25": 2000, "XN15": 2000, "XB09": 2000, "X003": 1000, "XB08": 1000, "XB02": 2000, "XB28": 1800, "XB14": 1500, "XB19": 1300, "H314": 0, "XB13": 1500, "XB24": 500, "XF02": 5000, "XF01": 5000, "XF04": 4500, "XF03": 2250, "K018": 24, "K284": 0, "H118": 32, "K772": 32, "K472": 70, "K773": 0, "K474": 600, "K473": 144, "C001": 10, "H030": 10, "C311": 10, "C002": 9, "H031": 9, "C312": 9, "K019": 24, "K214": 0, "H019": 16, "K775": 24, "K475": 48, "X002": 800, "C201": 20, "C301": 0, "C101": 10, "C202": 18, "C302": 0, "C102": 9, "X001": 500};
 
-        function onScan(text) {
-            let area = document.getElementById('area').value;
-            if(!area) { alert("Selecciona área primero"); return; }
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250}, rememberLastUsedCamera: true }, false);
 
-            let regex = /\b(H|K|T|A)\d{3,4}\b|\b(XN|XT)\d{2,4}\b/i;
-            let match = text.match(regex);
-            if(!match) { alert("QR no válido para TMMGT"); return; }
+        // Control de visibilidad de contenedores
+        const cajasDiv = document.getElementById('cajasContainer');
+        const piezasDiv = document.getElementById('piezasContainer');
+        const labelCajas = document.getElementById('labelCajas');
 
-            scanner.pause();
-            let kanban = match[0].toUpperCase();
-            let qpc = db[kanban] || 0;
-
-            document.getElementById('info').innerHTML = `<b>Kanban:</b> ${kanban}<br><b>QPC:</b> ${qpc}`;
-            document.getElementById('setup').classList.add('hidden');
-            document.getElementById('result').classList.remove('hidden');
-
-            // Lógica especial para PC
-            if(area === "PC") {
-                document.getElementById('contCajas').classList.remove('hidden');
-                document.getElementById('contPiezas').classList.add('hidden');
-                document.getElementById('labelCajas').innerText = "📦 Cantidad para PC (Col J)";
-            } else {
-                document.getElementById('labelCajas').innerText = "📦 Cajas Completas";
-                if(qpc > 0 && qpc < 30) {
-                    document.getElementById('contPiezas').classList.remove('hidden');
-                    document.getElementById('contCajas').classList.add('hidden');
-                } else {
-                    document.getElementById('contCajas').classList.remove('hidden');
-                    document.getElementById('contPiezas').classList.add('hidden');
-                }
+        function onScanSuccess(decodedText, decodedResult) {
+            let area = document.getElementById('areaSelect').value;
+            if(!area) {
+                alert("⚠️ Selecciona el ÁREA antes de escanear.");
+                return;
             }
+
+            html5QrcodeScanner.pause();
+            let rawText = decodedText.trim();
             
-            window.lastKanban = kanban;
-            window.lastQPC = qpc;
+            // EXTRACCIÓN CON REGEX EXCLUSIVO PARA: H, K, T, A (3-4 dígitos) Y XT, XN (2-4 dígitos)
+            let sebangoRegex = /\b(H|K|T|A)\d{3,4}\b|\b(XN|XT)\d{2,4}\b/i;
+            let matchSebango = rawText.match(sebangoRegex);
+            
+            if(!matchSebango) {
+                alert("❌ Código QR no válido. Solo se aceptan kanban H, K, T, A, XT, XN.");
+                html5QrcodeScanner.resume();
+                return;
+            }
+
+            let sebango = matchSebango[0].toUpperCase();
+
+            // Extracción opcional del número de parte
+            let partRegex = /[A-Z0-9]{5}-[A-Z0-9]{5,6}/i;
+            let matchPart = rawText.match(partRegex);
+            let partNum = matchPart ? matchPart[0].toUpperCase() : "Desconocido";
+
+            document.getElementById('sebangoVal').value = sebango;
+            
+            document.getElementById('qrData').innerHTML = `
+                <span style="display:block; margin-bottom:8px;"><strong>Kanban:</strong> ${sebango}</span>
+                <span style="display:block;"><strong>Nº Parte:</strong> ${partNum}</span>
+            `;
+
+            document.getElementById('sectionScanner').classList.add('hidden');
+            document.getElementById('scanResult').classList.remove('hidden');
+            
+            procesarQPC(sebango, area);
         }
 
-        scanner.render(onScan);
+        html5QrcodeScanner.render(onScanSuccess);
 
-        async function enviar() {
-            let btn = document.getElementById('btnSend');
+        function procesarQPC(sebango, area) {
+            let qpcDisplay = document.getElementById('qrData');
+            
+            // BUSQUEDA EN LA BASE DE DATOS LOCAL
+            let qpc = kanbanDB[sebango];
+            
+            if (qpc !== undefined) {
+                document.getElementById('qpcVal').value = qpc;
+                qpcDisplay.innerHTML += `<br><strong style="color:var(--primary-color);">QPC Base de Datos: ${qpc}</strong>`;
+                
+                let isPC = (area === "PC");
+                
+                // LÓGICA DE CONDICIONES
+                if (isPC) {
+                    cajasDiv.classList.remove('hidden');
+                    piezasDiv.classList.add('hidden');
+                    labelCajas.innerText = "📦 QPC a registrar"; // Para PC no hay restricción
+                } else {
+                    labelCajas.innerText = "📦 Cajas Completas";
+                    if (qpc < 30) {
+                        cajasDiv.classList.add('hidden');
+                        piezasDiv.classList.remove('hidden');
+                    } else {
+                        cajasDiv.classList.remove('hidden');
+                        piezasDiv.classList.add('hidden');
+                    }
+                }
+            } else {
+                // SI NO EXISTE EN LA BASE
+                document.getElementById('qpcVal').value = 1;
+                qpcDisplay.innerHTML += `<br><strong style="color:red;">⚠️ Kanban no encontrado en BD. Captura Manual:</strong>`;
+                cajasDiv.classList.remove('hidden');
+                piezasDiv.classList.remove('hidden');
+                labelCajas.innerText = "📦 Cajas Completas";
+            }
+        }
+
+        async function enviarDatos() {
+            let area = document.getElementById('areaSelect').value;
+            let btn = document.getElementById('btnCapturar');
+            
+            // Evaluamos qué campo está visible para validar
+            let cajasInput = document.getElementById('cajasInput').value;
+            let piezasInput = document.getElementById('piezasInput').value;
+            
+            let pideCajas = !cajasDiv.classList.contains('hidden');
+            let pidePiezas = !piezasDiv.classList.contains('hidden');
+
+            if (pideCajas && cajasInput === "") { alert("⚠️ Ingresa la cantidad de cajas/QPC."); return; }
+            if (pidePiezas && piezasInput === "") { alert("⚠️ Ingresa la cantidad de piezas sueltas."); return; }
+
             btn.disabled = true;
-            btn.innerText = "Enviando...";
+            btn.innerText = "⏳ Guardando...";
+
+            // Generar fecha y hora actual
+            let fechaHora = new Date().toLocaleString('es-MX');
 
             let payload = {
-                area: document.getElementById('area').value,
-                sebango: window.lastKanban,
-                cajas: document.getElementById('valCajas').value || 0,
-                piezas: document.getElementById('valPiezas').value || 0,
-                qpc: window.lastQPC
+                timestamp: fechaHora,
+                area: area,
+                sebango: document.getElementById('sebangoVal').value,
+                cajas: pideCajas ? (cajasInput || 0) : 0,
+                piezas: pidePiezas ? (piezasInput || 0) : 0,
+                qpc: document.getElementById('qpcVal').value
             };
 
             try {
-                await fetch(scriptURL, {
+                let response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                alert("✅ Registrado en Columna J (PC)");
-                reset();
-            } catch(e) {
-                alert("Error al conectar");
+                
+                let result = await response.json();
+                
+                if(result.status === "Exito" || result.status === "success" || result.result === "success") {
+                    alert("✅ Guardado correctamente en " + area);
+                    resetScanner();
+                } else {
+                    alert("✅ (Aviso: la petición se envió pero verifica el Apps Script).");
+                    resetScanner();
+                }
+
+            } catch(error) {
+                alert("❌ Error de red al guardar. Revisa tu Google Apps Script.");
                 btn.disabled = false;
+                btn.innerText = "💾 Guardar en Base";
             }
         }
 
-        function reset() {
-            document.getElementById('result').classList.add('hidden');
-            document.getElementById('setup').classList.remove('hidden');
-            document.getElementById('valCajas').value = "";
-            document.getElementById('valPiezas').value = "";
-            scanner.resume();
+        function resetScanner() {
+            document.getElementById('scanResult').classList.add('hidden');
+            cajasDiv.classList.add('hidden');
+            piezasDiv.classList.add('hidden');
+            document.getElementById('cajasInput').value = '';
+            document.getElementById('piezasInput').value = '';
+            document.getElementById('sectionScanner').classList.remove('hidden');
+            document.getElementById('btnCapturar').disabled = false;
+            document.getElementById('btnCapturar').innerText = "💾 Guardar en Base";
+            html5QrcodeScanner.resume();
         }
+
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
     </script>
 </body>
 </html>
