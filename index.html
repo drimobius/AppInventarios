@@ -6,196 +6,128 @@
     <title>Inventario QR Móvil</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: #1c1e21;
-            --input-bg: #ffffff;
-            --input-border: #ced4da;
-            --highlight-bg: #e7f3ff;
-            --primary-color: #0d6efd;
-            --danger-color: #dc3545;
-        }
-
-        .dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e4e6eb;
-            --input-bg: #2d2d2d;
-            --input-border: #444;
-            --highlight-bg: #2b3a4a;
-            --primary-color: #3b82f6;
-        }
-
-        /* Optimizaciones para Móvil */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 15px; margin: auto; max-width: 600px; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s; font-size: 16px; }
-        
+        :root { --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #1c1e21; --input-bg: #ffffff; --input-border: #ced4da; --highlight-bg: #e7f3ff; --primary-color: #0d6efd; --danger-color: #dc3545; }
+        .dark-mode { --bg-color: #121212; --card-bg: #1e1e1e; --text-color: #e4e6eb; --input-bg: #2d2d2d; --input-border: #444; --highlight-bg: #2b3a4a; --primary-color: #3b82f6; }
+        body { font-family: Arial, sans-serif; padding: 15px; margin: auto; max-width: 600px; background-color: var(--bg-color); color: var(--text-color); font-size: 18px; transition: background-color 0.3s;}
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--input-border); }
-        .header h2 { margin: 0; font-size: 1.4rem; }
-        
-        .card { background: var(--card-bg); padding: 20px 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        
-        label { display: block; margin-top: 15px; font-weight: 600; font-size: 1.1rem; color: var(--text-color); }
-        
-        /* Inputs y Selects Gigantes para Touch */
-        select, input { width: 100%; padding: 16px; margin-top: 8px; border-radius: 8px; border: 2px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-size: 1.2rem; font-weight: bold; }
-        input:focus, select:focus { outline: none; border-color: var(--primary-color); }
-        
-        /* Botones Robustos */
-        .btn-main { width: 100%; padding: 18px; margin-top: 25px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .btn-main:active { transform: scale(0.98); }
-        .btn-main:disabled { background-color: #6c757d; opacity: 0.7; }
-        
-        .btn-secondary { background-color: var(--danger-color); margin-top: 10px; }
-        .btn-toggle { padding: 10px 15px; background-color: var(--input-border); color: var(--text-color); border: none; border-radius: 20px; cursor: pointer; font-size: 1.2rem; }
-
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 1.2rem; }
+        select, input { width: 100%; padding: 18px; margin-top: 8px; border-radius: 8px; border: 2px solid var(--input-border); background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-size: 1.3rem; font-weight: bold; }
+        .btn-main { width: 100%; padding: 20px; margin-top: 25px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.4rem; font-weight: bold; cursor: pointer; }
+        .btn-main:disabled { background-color: #6c757d; }
+        .btn-secondary { background-color: var(--danger-color); margin-top: 15px; }
+        .btn-toggle { padding: 10px 15px; background-color: var(--input-border); color: var(--text-color); border: none; border-radius: 20px; font-size: 1.2rem; }
         #reader { width: 100%; margin-top: 15px; border-radius: 8px; overflow: hidden; }
         .hidden { display: none !important; }
-        
-        .data-display { background: var(--highlight-bg); padding: 15px; margin-top: 10px; border-radius: 8px; font-size: 1.1rem; border-left: 5px solid var(--primary-color); word-break: break-all; }
-        .data-display span { display: block; margin-bottom: 5px; }
-        
-        .alert-box { background-color: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-top: 15px; font-weight: bold; font-size: 1rem;}
+        .data-display { background: var(--highlight-bg); padding: 15px; margin-top: 10px; border-radius: 8px; font-size: 1.2rem; border-left: 6px solid var(--primary-color); }
+        .alert-box { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border-left: 6px solid #ffeeba; margin-top: 15px; font-weight: bold; font-size: 1.1rem;}
         .dark-mode .alert-box { background-color: #4d4013; color: #ffecb5; border-color: #856404; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h2>📦 Inventario QR</h2>
-        <button class="btn-toggle" onclick="toggleTheme()">🌓</button>
+        <h2>📦 Inventario</h2>
+        <button class="btn-toggle" onclick="toggleTheme()">🌓 Modo</button>
     </div>
 
     <div id="sectionScanner" class="card">
-        <label for="areaSelect">1. Selecciona el Área</label>
+        <label for="areaSelect">1. Selecciona tu Área</label>
         <select id="areaSelect">
-            <option value="">-- Toca para seleccionar --</option>
-            <option value="IL">Logística (IL)</option>
+            <option value="">-- Seleccionar Área --</option>
             <option value="WE">Welding (WE)</option>
-            <option value="ST">Estampado (ST PARTS)</option>
+            <option value="IL">Logística (IL)</option>
+            <option value="SP">SP</option>
+            <option value="ST Parts">Estampado (ST Parts)</option>
+            <option value="QC">QC</option>
+            <option value="SP PC">SP PC</option>
         </select>
 
-        <label>2. Escanea el Kanban</label>
+        <label style="margin-top: 25px;">2. Escanear Kanban</label>
         <div id="reader"></div>
     </div>
 
     <div id="scanResult" class="card hidden">
-        <h3 style="margin-top: 0; color: var(--primary-color);">Datos Detectados</h3>
-        
-        <input type="hidden" id="serialVal"><input type="hidden" id="partNumVal">
+        <h3 style="margin-top: 0; color: var(--primary-color); font-size: 1.4rem;">Datos Detectados</h3>
         <input type="hidden" id="sebangoVal"><input type="hidden" id="qpcVal">
         
         <div class="data-display" id="qrData"></div>
         
         <label for="cajasInput">📦 Cajas Completas</label>
-        <input type="number" id="cajasInput" min="0" placeholder="Ej. 5" inputmode="numeric">
+        <input type="number" id="cajasInput" min="0" placeholder="0" inputmode="numeric">
 
         <div id="piezasContainer" class="hidden">
             <div class="alert-box">⚠️ QPC menor a 30. Captura parcial obligatoria.</div>
             <label for="piezasInput">🔩 Piezas Sueltas</label>
-            <input type="number" id="piezasInput" min="0" placeholder="Ej. 12" inputmode="numeric">
+            <input type="number" id="piezasInput" min="0" placeholder="0" inputmode="numeric">
         </div>
 
-        <button id="btnCapturar" class="btn-main" onclick="enviarDatos()">💾 Guardar Conteo</button>
-        <button class="btn-main btn-secondary" onclick="resetScanner()">❌ Descartar y Re-escanear</button>
+        <button id="btnCapturar" class="btn-main" onclick="enviarDatos()">💾 Guardar en Base</button>
+        <button class="btn-main btn-secondary" onclick="resetScanner()">❌ Re-escanear</button>
     </div>
 
     <script>
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc8qZS_iq-oCGbPgINXaR-59vdCpguPXe-AKUn5DgnTA-Ks8f3YULDMme0H_zzGBNi0g/exec'; 
+        // URL ACTUALIZADA
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTi1B_Xd7120zeCkpEdVcfGj4YbhGbWZti2Z5nmqQlIzJheT68pSQcHEGtPnglXHxDgQ/exec'; 
         
         let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250}, rememberLastUsedCamera: true }, false);
 
         function onScanSuccess(decodedText, decodedResult) {
-            // 1. Pausar escáner para que el usuario capture tranquilo
             html5QrcodeScanner.pause();
-            
             let rawText = decodedText.trim();
-            let sebango = "No detectado";
-            let partNum = "";
-            let serial = "";
+            
+            // Extracción del Sebango y Parte
+            let sebangoRegex = /\b(K|T|H|A)\d{3,4}\b|\b(XN|XB)\d{2,4}\b/i;
+            let matchSebango = rawText.match(sebangoRegex);
+            let sebango = matchSebango ? matchSebango[0].toUpperCase() : "Desconocido";
 
-            // 2. EXTRACCIÓN INTELIGENTE DEL SEBANGO
-            // Busca: K, T, H, A (más números) O XN, XB (más números)
-            let sebangoRegex = /\b(?:[KTHA]\d{2,4}|X[NB]\d{2,4})\b/i;
-            let match = rawText.match(sebangoRegex);
+            let partRegex = /[A-Z0-9]{5}-[A-Z0-9]{5,6}/i;
+            let matchPart = rawText.match(partRegex);
+            let partNum = matchPart ? matchPart[0].toUpperCase() : "Desconocido";
 
-            // 3. Separar el QR por espacios, comas, guiones o saltos de línea
-            let tokens = rawText.split(/[\s,\n\t|-]+/).filter(t => t.length > 0);
-
-            if (match) {
-                sebango = match[0].toUpperCase();
-                // Quitamos el sebango de la lista de fragmentos para adivinar Parte y Serial
-                tokens = tokens.filter(t => t.toUpperCase() !== sebango);
-            }
-
-            // 4. Asignar los fragmentos restantes a Parte y Serial
-            if (tokens.length >= 2) {
-                // Asumimos el más largo como número de parte y el otro como serial
-                if(tokens[0].length > tokens[1].length) {
-                    partNum = tokens[0]; serial = tokens[1];
-                } else {
-                    partNum = tokens[1]; serial = tokens[0];
-                }
-            } else if (tokens.length === 1) {
-                partNum = tokens[0];
-                serial = "N/A";
-            } else {
-                // Si estaba todo pegado sin espacios y no pudimos separarlo
-                partNum = rawText.replace(sebango, ''); // Quitamos el sebango del texto bruto
-                serial = "N/A";
-            }
-
-            // Si por alguna razón el regex no encontró Sebango pero hay texto, no bloqueamos la app
-            if(!match) { sebango = "Revisar Manualmente"; }
-
-            // Llenar campos ocultos
-            document.getElementById('serialVal').value = serial;
-            document.getElementById('partNumVal').value = partNum;
             document.getElementById('sebangoVal').value = sebango;
             
-            // Mostrar en UI
             document.getElementById('qrData').innerHTML = `
-                <span><strong>Sebango:</strong> ${sebango}</span>
-                <span><strong>Nº Parte:</strong> ${partNum}</span>
-                <span><strong>Kanban:</strong> ${serial}</span>
-                <hr style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
-                <span style="font-size: 0.85rem; color: gray;"><strong>Texto Bruto:</strong> ${rawText}</span>
+                <span style="display:block; margin-bottom:8px;"><strong>Sebango:</strong> ${sebango}</span>
+                <span style="display:block;"><strong>Nº Parte:</strong> ${partNum}</span>
             `;
 
-            // Ocultar cámara, mostrar formulario
             document.getElementById('sectionScanner').classList.add('hidden');
             document.getElementById('scanResult').classList.remove('hidden');
             
-            // Buscar QPC en la base de datos
-            fetchQPC(partNum);
+            // Buscamos el QPC usando el Sebango
+            fetchQPC(sebango);
         }
 
         html5QrcodeScanner.render(onScanSuccess);
 
-        async function fetchQPC(partNumber) {
+        async function fetchQPC(sebango) {
             let qpcDisplay = document.getElementById('qrData');
             let tempMsg = document.createElement('span');
             tempMsg.id = 'qpcLoading';
-            tempMsg.innerHTML = "<em>Buscando QPC en BD...</em>";
+            tempMsg.innerHTML = "<br><em>Buscando QPC en BD...</em>";
             qpcDisplay.appendChild(tempMsg);
 
             try {
-                let response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?partNumber=${partNumber}`);
+                let response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?sebango=${sebango}`);
                 let data = await response.json();
-                let qpc = data.qpc || 1;
                 
-                document.getElementById('qpcVal').value = qpc;
-                document.getElementById('qpcLoading').innerHTML = `<strong>QPC:</strong> ${qpc}`;
-                
-                // REGLA: Si QPC < 30, forzar campo de piezas
-                if (qpc > 0 && qpc < 30) {
-                    document.getElementById('piezasContainer').classList.remove('hidden');
+                if(data.encontrado) {
+                    let qpc = data.qpc;
+                    document.getElementById('qpcVal').value = qpc;
+                    document.getElementById('qpcLoading').innerHTML = `<br><strong>QPC Base de Datos:</strong> ${qpc}`;
+                    
+                    if (qpc > 0 && qpc < 30) {
+                        document.getElementById('piezasContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('piezasContainer').classList.add('hidden');
+                    }
                 } else {
-                    document.getElementById('piezasContainer').classList.add('hidden');
+                    document.getElementById('qpcVal').value = 1;
+                    document.getElementById('qpcLoading').innerHTML = `<br><strong style="color:red;">⚠️ Sebango no encontrado en BD.</strong>`;
                 }
             } catch (error) {
-                document.getElementById('qpcVal').value = 1;
-                document.getElementById('qpcLoading').innerHTML = `<strong>QPC:</strong> (No encontrado, asumiendo 1)`;
+                document.getElementById('qpcLoading').innerHTML = `<br><strong>QPC:</strong> (Error de conexión)`;
             }
         }
 
@@ -204,7 +136,7 @@
             let cajas = document.getElementById('cajasInput').value;
             let btn = document.getElementById('btnCapturar');
 
-            if(!area) { alert("⚠️ Selecciona el ÁREA en la pantalla principal antes de continuar."); return; }
+            if(!area) { alert("⚠️ Selecciona el ÁREA antes de escanear."); return; }
             if(cajas === "") { alert("⚠️ Ingresa la cantidad de CAJAS completas."); return; }
 
             btn.disabled = true;
@@ -212,8 +144,6 @@
 
             let payload = {
                 area: area,
-                serial: document.getElementById('serialVal').value,
-                numeroParte: document.getElementById('partNumVal').value,
                 sebango: document.getElementById('sebangoVal').value,
                 cajas: cajas,
                 piezas: document.getElementById('piezasInput').value || 0,
@@ -221,38 +151,41 @@
             };
 
             try {
-                await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                // Usamos text/plain para evitar bloqueos de CORS de Google y poder leer la respuesta
+                let response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 
-                alert("✅ Inventario guardado exitosamente.");
-                resetScanner(); // Volver a la pantalla de escaneo
+                let result = await response.json();
+                
+                if(result.status === "Exito") {
+                    alert("✅ Guardado correctamente en " + area);
+                    resetScanner();
+                } else {
+                    alert("❌ Error: " + result.message);
+                    btn.disabled = false;
+                    btn.innerText = "💾 Guardar en Base";
+                }
 
             } catch(error) {
-                alert("❌ Error de red al guardar. Intenta de nuevo.");
+                alert("❌ Error de red al guardar.");
                 btn.disabled = false;
-                btn.innerText = "💾 Guardar Conteo";
+                btn.innerText = "💾 Guardar en Base";
             }
         }
 
         function resetScanner() {
-            // Limpiar formulario y volver a la cámara
             document.getElementById('scanResult').classList.add('hidden');
             document.getElementById('piezasContainer').classList.add('hidden');
             document.getElementById('cajasInput').value = '';
             document.getElementById('piezasInput').value = '';
             document.getElementById('sectionScanner').classList.remove('hidden');
-            
-            // Reanudar cámara
             html5QrcodeScanner.resume();
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-        }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
     </script>
 </body>
 </html>
